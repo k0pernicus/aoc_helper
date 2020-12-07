@@ -49,3 +49,14 @@ impl<'a> AOCAppMatches<'a> {
         self.matches.value_of("input")
     }
 }
+
+#[macro_export]
+macro_rules! get_app_args {
+    () => (
+        AOCApp::new(
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION"),
+            env!("CARGO_PKG_AUTHORS")
+        ).build()
+    )
+}
