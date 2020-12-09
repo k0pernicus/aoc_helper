@@ -17,16 +17,25 @@ impl<'a, 'b> AOCApp<'a, 'b> {
             ),
         }
     }
+
     /// Useful to customize a clap App
     pub fn add_argument(
         mut self,
         arg_name: &'a str,
         long_arg_name: &'b str,
+        short_arg_name: &'b str,
+        required: bool,
+        takes_value: bool,
         help: &'b str,
     ) -> Self {
-        self.app = self
-            .app
-            .arg(Arg::with_name(arg_name).long(long_arg_name).help(help));
+        self.app = self.app.arg(
+            Arg::with_name(arg_name)
+                .long(long_arg_name)
+                .short(short_arg_name)
+                .required(required)
+                .takes_value(takes_value)
+                .help(help),
+        );
         self
     }
 
@@ -38,6 +47,17 @@ impl<'a, 'b> AOCApp<'a, 'b> {
     }
 }
 
+impl<'a, 'b> Default for AOCApp<'a, 'b> {
+    fn default() -> Self {
+        AOCApp::new(
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION"),
+            env!("CARGO_PKG_AUTHORS"),
+        )
+    }
+}
+
+#[derive(Debug)]
 /// Keep in memory the user arguments (and matches)
 pub struct AOCAppMatches<'a> {
     matches: ArgMatches<'a>,
@@ -46,17 +66,16 @@ pub struct AOCAppMatches<'a> {
 impl<'a> AOCAppMatches<'a> {
     /// Default function to get the input file
     pub fn get_input_filename(&self) -> Option<&str> {
-        self.matches.value_of("input")
+        self.get_value_of("input")
+    }
+    pub fn get_value_of(&self, arg_name: &str) -> Option<&str> {
+        self.matches.value_of(arg_name)
     }
 }
 
 #[macro_export]
 macro_rules! get_app_args {
-    () => (
-        AOCApp::new(
-            env!("CARGO_PKG_NAME"),
-            env!("CARGO_PKG_VERSION"),
-            env!("CARGO_PKG_AUTHORS")
-        ).build()
-    )
+    () => {
+        AOCApp::default().build()
+    };
 }
